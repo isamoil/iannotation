@@ -31,7 +31,8 @@ function generateAnnotation() {
     const methods = ['post', 'patch', 'put'];
     const exist = methods.indexOf(method)
     if (exist >= 0) {
-        let inputParams = document.getElementById('paramsDataInput').value;
+        // let inputParams = document.getElementById('paramsDataInput').value;
+        let inputParams = aceSchemaEditor.getValue(0);
         let inputJsonParameters = inputParams ? JSON.parse(inputParams) : {};
         response += inputParameters(Object.keys(inputJsonParameters)[0], document.getElementById('descriptionParamsDataInput').value)
         response += convertJsonToAnnotation(inputJsonParameters);
@@ -43,7 +44,8 @@ function generateAnnotation() {
         let description = document.getElementById(code + '_input').value ?
             document.getElementById(code + '_input').value : defaultCodeDescription[code];
         if (parseInt(code) === 200) {
-            let inputJsonData = document.getElementById('responseDataInput').value ? JSON.parse(document.getElementById('responseDataInput').value) : {};
+            const resDataInput = aceOutputEditor.getValue(0);
+            let inputJsonData = resDataInput ? JSON.parse(resDataInput) : {};
             response += response200();
             tabsCount--;
             response += convertJsonToAnnotation(inputJsonData);
@@ -54,7 +56,23 @@ function generateAnnotation() {
         }
     });
     if (!error) {
-        document.getElementById('finalAnnotations').value = response;
+        const lines = response.split('\n');
+        const totalLines = lines.length;
+        const el = document.getElementById('finalAnnotations');
+        el.innerText = '\n';
+
+        lines.forEach(line => {
+            el.innerHTML += '<div>' + line + '</div>';
+        });
+
+        el.innerHTML += '\n\n<span aria-hidden="true" class="line-numbers-rows"></span>';
+        const linesEl = $('.line-numbers-rows');
+        linesEl.removeAttr('hidden');
+        linesEl.css('display', 'block');
+        linesEl.html('');
+        lines.forEach(line => {
+            linesEl.append('<span></span>');
+        });
     }
 }
 
@@ -195,19 +213,12 @@ function addStringProperty(key, value) {
 }
 
 function addObjectProperty(key, value) {
-    console.log(tabsCount);
-    // tabsCount++;
-    // console.log(tabsCount);
     let result = tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Property(property="' + key + '", type="object",\n';
     tabsCount++;
-    console.log(tabsCount);
     Object.keys(value).forEach(function (newKey) {
         result += redirectValue('', newKey, value[newKey]);
     });
     tabsCount--;
-
-    console.log(tabsCount);
-    console.log('--------');
 
     return result += tabsString + '* ' + tabsString.repeat(tabsCount) + "),\n"
 }

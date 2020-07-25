@@ -25,7 +25,7 @@
 
     <!-- Split.js - https://github.com/nathancahill/split/ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.5.10/split.min.js"></script>
-
+    <link href="css/prism.css" rel="stylesheet" />
     <link rel="stylesheet" href="css/jsoneditor_demo.min.css"/>
     <link rel="stylesheet" href="css/styles.css">
 
@@ -154,9 +154,15 @@
             </div>
         </div>
     </div>
+
     <div class="side right form-group">
         <label for="finalAnnotations">Result</label><br>
-        <textarea id="finalAnnotations" class="form-control textarea large" readonly></textarea>
+        <pre class="line-numbers language-unknown">
+            <code id="finalAnnotations">
+
+            </code>
+        </pre>
+<!--        <textarea id="finalAnnotations" class="form-control textarea large" readonly></textarea>-->
     </div>
 </div>
 
@@ -166,5 +172,7 @@
 </div>
 
 <script src="js/jsoneditor_demo.js"></script>
+<script src="js/prism.js"></script>
+
 </body>
 </html>

@@ -57,3 +57,21 @@ body, html {
     min-height: 480px !important;
     height: auto !important;
 }
+
+.line-numbers .line-numbers-rows {
+    left: -9.8em;
+}
+
+.code-toolbar, .line-numbers {
+    height: 100%;
+}
+
+#finalAnnotations {
+    color: #4c9051;
+    font-size: 15px;
+    padding-top: 2px;
+}
+
+code[class*="language-"] {
+    line-height: unset;
+}
