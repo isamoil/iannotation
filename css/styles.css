@@ -4,8 +4,8 @@ body {
 }
 
 body, html {
-    width: 100%;
-    height: 100%;
+    width: auto;
+    height: auto;
     position: relative;
 }
 
@@ -47,4 +47,8 @@ body, html {
 
 .generate-buttons.red {
     color: red;
+}
+
+.split-parent > div {
+    width: 100% !important;
 }
