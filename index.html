@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="images/icon.png">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
+    <script src="js/scripts.js"></script>
+    <title>Annotation</title>
+</head>
+<body>
+<div class="divL" id="divL">
+    <!--    <label for="project">Choose a Project:</label>-->
+    <!--    <select name="project" id="project">-->
+    <!--        <option value="iabtp">iabtp</option>-->
+    <!--        <option value="ywork">ywork</option>-->
+    <!--        <option value="cepac">cepac</option>-->
+    <!--        <option value="chaze">chaze</option>-->
+    <!--    </select><br>-->
+    <form>
+        <label for="apiName">API path:</label><br>
+        <input style="width: 90%" type="text" id="apiName" name="apiName" placeholder="game/draws/{id}"><br/>
+        <label for="apiDescription">API description:</label><br>
+        <input  style="width: 90%" type="text" id="apiDescription" name="apiDescription" placeholder="Request Method: PATCH">
+    </form>
+    <label for="method">Choose a Swagger version:</label>
+    <select name="method" id="swfVersion">
+        <option value="2">2.0</option>
+        <option value="1">1.0</option>
+        <option value="3">3.0</option>
+    </select><br>
+    <label for="method">Choose a Method:</label>
+    <select name="method" id="method" onchange="changeMethod(event)">
+        <option value="post">POST</option>
+        <option value="get">GET</option>
+        <option value="patch">PATCH</option>
+        <option value="delete">DELETE</option>
+        <option value="put">PUT</option>
+    </select><br>
+    <div id="paramsData" >
+        <label>JSON input/params data</label><br/>
+        <label for="paramsDataInput"></label>
+        <textarea id="paramsDataInput" cols="100" rows="15"></textarea><br/>
+        <label>Description for input Parameters:</label><br/>
+        <input style="width: 90%" id="descriptionParamsDataInput"><br/>
+    </div>
+    <div><b>Select response code:</b>
+        <select class="selectpicker" id="responseCode" multiple data-live-search="true" onchange="editCodesList()" style="background: greenyellow">
+            <option value="200" selected>HTTP_OK: 200</option>
+            <option value="201">HTTP_CREATED: 201</option>
+            <option value="204">HTTP_NO_CONTENT: 204</option>
+            <option value="400" selected>HTTP_BAD_REQUEST: 400</option>
+            <option value="403" selected>HTTP_FORBIDDEN: 403</option>
+            <option value="500" selected>HTTP_INTERNAL_SERVER_ERROR: 500</option>
+            <option value="100">HTTP_CONTINUE: 100</option>
+            <option value="101">HTTP_SWITCHING_PROTOCOLS: 101</option>
+            <option value="102">HTTP_PROCESSING: 102</option>
+            <option value="103">HTTP_EARLY_HINTS: 103</option>
+            <option value="202">HTTP_ACCEPTED: 202</option>
+            <option value="203">HTTP_NON_AUTHORITATIVE_INFORMATION: 203</option>
+            <option value="204">HTTP_NO_CONTENT: 204</option>
+            <option value="205">HTTP_RESET_CONTENT: 205</option>
+            <option value="206">HTTP_PARTIAL_CONTENT: 206</option>
+            <option value="207">HTTP_MULTI_STATUS: 207</option>
+            <option value="208">HTTP_ALREADY_REPORTED: 208</option>
+            <option value="226">HTTP_IM_USED: 226</option>
+            <option value="300">HTTP_MULTIPLE_CHOICES: 300</option>
+            <option value="301">HTTP_MOVED_PERMANENTLY: 301</option>
+            <option value="302">HTTP_FOUND: 302</option>
+            <option value="303">HTTP_SEE_OTHER: 303</option>
+            <option value="304">HTTP_NOT_MODIFIED: 304</option>
+            <option value="305">HTTP_USE_PROXY: 305</option>
+            <option value="306">HTTP_RESERVED: 306</option>
+            <option value="307">HTTP_TEMPORARY_REDIRECT: 307</option>
+            <option value="308">HTTP_PERMANENTLY_REDIRECT: 308</option>
+            <option value="401">HTTP_UNAUTHORIZED: 401</option>
+            <option value="402">HTTP_PAYMENT_REQUIRED: 402</option>
+            <option value="404">HTTP_NOT_FOUND: 404</option>
+            <option value="405">HTTP_METHOD_NOT_ALLOWED: 405</option>
+            <option value="406">HTTP_NOT_ACCEPTABLE: 406</option>
+            <option value="407">HTTP_PROXY_AUTHENTICATION_REQUIRED: 407</option>
+            <option value="408">HTTP_REQUEST_TIMEOUT: 408</option>
+            <option value="409">HTTP_CONFLICT: 409</option>
+            <option value="410">HTTP_GONE: 410</option>
+            <option value="411">HTTP_LENGTH_REQUIRED: 411</option>
+            <option value="412">HTTP_PRECONDITION_FAILED: 412</option>
+            <option value="413">HTTP_REQUEST_ENTITY_TOO_LARGE: 413</option>
+            <option value="414">HTTP_REQUEST_URI_TOO_LONG: 414</option>
+            <option value="415">HTTP_UNSUPPORTED_MEDIA_TYPE: 415</option>
+            <option value="416">HTTP_REQUESTED_RANGE_NOT_SATISFIABLE: 416</option>
+            <option value="417">HTTP_EXPECTATION_FAILED: 417</option>
+            <option value="418">HTTP_I_AM_A_TEAPOT: 418</option>
+            <option value="421">HTTP_MISDIRECTED_REQUEST: 421</option>
+            <option value="422">HTTP_UNPROCESSABLE_ENTITY: 422</option>
+            <option value="423">HTTP_LOCKED: 423</option>
+            <option value="424">HTTP_FAILED_DEPENDENCY: 424</option>
+            <option value="425">HTTP_RESERVED_FOR_WEBDAV_ADVANCED_COLLECTIONS_EXPIRED_PROPOSAL: 425</option>
+            <option value="425">HTTP_TOO_EARLY: 425</option>
+            <option value="426">HTTP_UPGRADE_REQUIRED: 426</option>
+            <option value="428">HTTP_PRECONDITION_REQUIRED: 428</option>
+            <option value="429">HTTP_TOO_MANY_REQUESTS: 429</option>
+            <option value="431">HTTP_REQUEST_HEADER_FIELDS_TOO_LARGE: 431</option>
+            <option value="451">HTTP_UNAVAILABLE_FOR_LEGAL_REASONS: 451</option>
+            <option value="501">HTTP_NOT_IMPLEMENTED: 501</option>
+            <option value="502">HTTP_BAD_GATEWAY: 502</option>
+            <option value="503">HTTP_SERVICE_UNAVAILABLE: 503</option>
+            <option value="504">HTTP_GATEWAY_TIMEOUT: 504</option>
+            <option value="505">HTTP_VERSION_NOT_SUPPORTED: 505</option>
+            <option value="506">HTTP_VARIANT_ALSO_NEGOTIATES_EXPERIMENTAL: 506</option>
+            <option value="507">HTTP_INSUFFICIENT_STORAGE: 507</option>
+            <option value="508">HTTP_LOOP_DETECTED: 508</option>
+            <option value="510">HTTP_NOT_EXTENDED: 510</option>
+            <option value="511">HTTP_NETWORK_AUTHENTICATION_REQUIRED: 511</option>
+        </select>
+    </div>
+    <div id="responseData" width="100%">
+        <label>JSON response data for 200 code: </label><br/>
+        <label for="responseDataInput"></label>
+        <textarea id="responseDataInput" cols="100" rows="15"></textarea><br/>
+        <label>Description for code 200 :</label><br/>
+        <input style="width: 90%" id="200_input"><br/>
+    </div>
+</div>
+<div class="divR">
+    <label>Result</label><br>
+    <textarea cols="100" rows="40" id="finalAnnotations" readonly></textarea>
+</div>
+<div class="generate-div">
+    <button class="generate-buttons2" onclick="generateAnnotation()">Convert Json into Annotations -></button>
+    <button class="generate-buttons1" onclick="generateAnnotation()" disabled><- Convert Annotations into Json</button>
+</div>
+
+</body>
+</html>
