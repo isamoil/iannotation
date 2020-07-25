@@ -16,7 +16,7 @@ var extendObj = function (destination) {
 }
 
 // Theme to use in ACE editor instances
-var aceTheme = 'ace/theme/monokai';
+var aceTheme = 'ace/theme/xcode';
 
 // ACE Editor placeholders
 var jeEditSchema = document.querySelector('#schema');
