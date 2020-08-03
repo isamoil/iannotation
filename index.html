@@ -33,15 +33,16 @@
     <title>Annotation</title>
 </head>
 <body>
+<img src="https://www.tekoway.com/wp-content/uploads/2017/08/logo.png" class="tekoway-logo">
 <div class="full-screen">
     <div class="side left" id="divL">
         <div class="form-group">
-            <label for="apiName">API path:</label>
-            <input class="form-control" type="text" id="apiName" name="apiName" placeholder="game/draws/{id}"><br/>
+            <label for="apiDescription">API name:</label><br>
+            <input class="form-control" type="text" id="apiDescription" name="apiDescription" placeholder="game/games">
         </div>
         <div class="form-group">
-            <label for="apiDescription">API description:</label><br>
-            <input class="form-control" type="text" id="apiDescription" name="apiDescription" placeholder="Request Method: PATCH">
+            <label for="apiName">API path:</label>
+            <input class="form-control" type="text" id="apiName" name="apiName" placeholder="game/draws/{id}?param=668"><br/>
         </div>
         <div class="form-group">
             <label for="method">Choose a Method:</label>
@@ -65,7 +66,7 @@
             </div>
             <div class="form-group">
                 <label for="descriptionParamsDataInput">Description for input Parameters:</label>
-                <input id="descriptionParamsDataInput" type="text" class="form-control" />
+                <input id="descriptionParamsDataInput" type="text" class="form-control" placeholder="The input parameters"/>
             </div>
         </div>
 
@@ -150,7 +151,7 @@
             </div>
             <div class="form-group">
                 <label for="200_input">Description for code 200 :</label>
-                <input class="form-control" id="200_input">
+                <input class="form-control" id="200_input" placeholder="HTTP_OK">
             </div>
         </div>
     </div>

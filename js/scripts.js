@@ -18,43 +18,58 @@ $(document).ready(function () {
 function generateAnnotation() {
     tabsCount = 1;
     error = false;
-    let response = tabsString + '* @SWG\\Tag(name="' + document.getElementById('apiName').value +
-        '", description="' + document.getElementById('apiDescription').value + '")\n'
+    const apiName = document.getElementById('apiDescription').value?
+        document.getElementById('apiDescription').value.replace(/"/g, '\"\"') :
+        'Api Name';
+    const apiPath = document.getElementById('apiName').value;
+    const method = document.getElementById('method').value
 
-    // api.eiole.local/app_dev.php/v2/dedication/configurations/1/messages?per_page=20&page=1
-    response += addPathParameters(response);
+    let response = tabsString + '/**\n' + tabsString + '* @SWG\\Tag(name="' + apiName.replace(/"/g, '\"\"') +
+        '", description="';
+    if (apiPath){
+        response += 'Path: ' + apiPath.split('?')[0].replace(/"/g, '\"\"') + '; ';
+    }
+    response += 'Request Method:' + method.replace(/"/g, '\"\"').toUpperCase() + '")\n'
 
-    response += addQueryParameters(response);
+    response += addPathParameters();
 
+    response += addQueryParameters();
 
-    let method = document.getElementById('method').value
     const methods = ['post', 'patch', 'put'];
     const exist = methods.indexOf(method)
     if (exist >= 0) {
-        // let inputParams = document.getElementById('paramsDataInput').value;
         let inputParams = aceSchemaEditor.getValue(0);
         let inputJsonParameters = inputParams ? JSON.parse(inputParams) : {};
-        response += inputParameters(Object.keys(inputJsonParameters)[0], document.getElementById('descriptionParamsDataInput').value)
-        response += convertJsonToAnnotation(inputJsonParameters);
-        response += tabsString + '* ' + tabsString.repeat(tabsCount) + ')\n';
-        tabsCount--;
-        response += tabsString + '* ' + tabsString.repeat(tabsCount) + ' )\n';
+        if (Object.entries(inputJsonParameters).length !== 0) {
+            const descriptionForInput = document.getElementById('descriptionParamsDataInput').value || 'The input parameters';
+            response += inputParameters(Object.keys(inputJsonParameters)[0], descriptionForInput, inputJsonParameters)
+            response += convertJsonToAnnotation(inputJsonParameters);
+            if (typeof inputJsonParameters === "object" && Array.isArray(inputJsonParameters) && !Array.isArray(inputJsonParameters[0])) {
+                response += tabsString + '* ' + tabsString + '),\n';
+                tabsCount--;
+            }
+                tabsCount--;
+
+            response += tabsString + '* ' + tabsString.repeat(tabsCount) + ')\n';
+        }
     }
     selectedCodes.forEach(code => {
         let description = document.getElementById(code + '_input').value ?
             document.getElementById(code + '_input').value : defaultCodeDescription[code];
         if (parseInt(code) === 200) {
             const resDataInput = aceOutputEditor.getValue(0);
-            let inputJsonData = resDataInput ? JSON.parse(resDataInput) : {};
-            response += response200();
+            let jsonData = resDataInput ? JSON.parse(resDataInput) : {};
+
+            response += responseData(200, jsonData);
             tabsCount--;
-            response += convertJsonToAnnotation(inputJsonData);
-            tabsCount--;
-            response += response200Description(description);
+            response += convertJsonToAnnotation(jsonData);
+            // tabsCount--;
+            response += response200Description(description, jsonData);
         } else {
             response += errorCodeMessage(code, description)
         }
     });
+    response += tabsString + '**/'
     if (!error) {
         const lines = response.split('\n');
         const totalLines = lines.length;
@@ -126,7 +141,7 @@ function insertDescriptionInputs() {
             codeDiv.id = code;
             codeInput.placeholder = defaultCodeDescription[code] ? defaultCodeDescription[code] : '';
             codeInput.id = code + '_input';
-            codeInput.style.width = '90%';
+            codeInput.className = 'form-control';
             codeLabel.nodeValue = code;
             codeDiv.appendChild(codeLabel);
             codeDiv.appendChild(newLine);
@@ -140,10 +155,19 @@ function insertDescriptionInputs() {
 
 function convertJsonToAnnotation(inputJson) {
     let finalString = '';
-    Object.keys(inputJson).forEach(function (key) {
-        console.log(key);
-        finalString = redirectValue(finalString, key, inputJson[key]);
-    });
+    if (Array.isArray(inputJson) && typeof inputJson[0] === "object" && !Array.isArray(inputJson[0])) {
+        finalString += 'type="object",\n';
+        tabsCount++;
+        Object.keys(inputJson[0]).forEach(function (key) {
+            finalString = redirectValue(finalString, key, inputJson[0][key]);
+        });
+    } else  {
+        tabsCount++;
+        Object.keys(inputJson).forEach(function (key) {
+            finalString = redirectValue(finalString, key, inputJson[key]);
+        });
+    }
+
 
     return finalString;
 }
@@ -152,9 +176,9 @@ function redirectValue(finalString, key, value) {
     switch (typeof value) {
         case "string":
             if (Date.parse(value)) {
-                finalString += addDateProperty(key, value)
+                finalString += addDateProperty(key, value.replace(/"/g, '\"\"'))
             } else {
-                finalString += addStringProperty(key, value)
+                finalString += addStringProperty(key, value.replace(/"/g, '\"\"'))
             }
             break;
         case "number":
@@ -181,27 +205,29 @@ function redirectValue(finalString, key, value) {
     return finalString;
 }
 
-function addPathParameters(response) {
+function addPathParameters() {
+    let response = '';
     let apiPath = document.getElementById('apiName').value
     let itemsApiPath = apiPath.split('/');
     itemsApiPath.forEach(item => {
         if (item[0] === '{') {
             item = item.slice(1);
             item = item.slice(0, -1);
-            response += addParameters(item, 'Mandatory');
+            response = addParameters(item, 'Mandatory', 'path');
         }
     })
 
     return response;
 }
 
-function addQueryParameters(response, name, value) {
+function addQueryParameters() {
+    let response = '';
     let apiPath = document.getElementById('apiName').value
     let apiParts = apiPath.split('?');
     if (apiParts.length > 1) {
         let itemsApiQuery = apiParts[1].split('&');
         itemsApiQuery.forEach((item) => {
-            response += addParameters(item.split('=')[0], item.split('=')[1]);
+            response = addParameters(item.split('=')[0],item.substr(itemsApiQuery.indexOf('=') + 1), 'query');
         })
     }
 
@@ -226,13 +252,35 @@ function addObjectProperty(key, value) {
 function addArrayProperty(key, value) {
     let result = tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Property(property="' + key + '", type="array",\n';
     tabsCount++;
-    result += tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Items(\n';
-    tabsCount++;
-    Object.keys(value[0]).forEach(function (newKey) {
-        result += redirectValue('', newKey, value[0][newKey]);
-    });
+    result += tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Items(';
+    if (typeof value[0] === "object") {
+        if (!Array.isArray(value[0])) {
+            result += 'type="object",\n'
+        }
+        tabsCount++;
+        Object.keys(value[0]).forEach(function (newKey) {
+            result += redirectValue('', newKey, value[0][newKey]);
+        });
+        // tabsCount--;
+    } else {
+        switch (typeof value[0]) {
+            case "string":
+                if (Date.parse(value[0])) {
+                    result += 'type="datetime", example=' + value[0] + ')\n';
+                } else {
+                    result += 'type="' + typeof value[0] + '", example="' + value[0] + '")\n';
+                }
+                break;
+            case "number":
+                result += 'type="' + typeof value[0] + '", example=' + value[0] + ')\n';
+                break;
+            case "boolean":
+                result += 'type="boolean", example=' + value[0] + ')\n';
+                break;
+        }
+    }
     tabsCount--;
-    result += tabsString + '* ' + tabsString.repeat(tabsCount) + "),\n"
+        result += tabsString + '* ' + tabsString.repeat(tabsCount) + "),\n"
     tabsCount--;
 
     return result += tabsString + '* ' + tabsString.repeat(tabsCount) + "),\n"
@@ -248,50 +296,73 @@ function addIntegerProperty(key, value) {
 }
 
 function addDateProperty(key, value) {
-    return tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Property(property="' + key + '", type="ISO8601", example="' + value + '"),\n';
+    return tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Property(property="' + key + '", type="datetime", example="' + value + '"),\n';
 }
 
+function responseData(code, jsonData) {
+    let response = tabsString + '* @SWG\\Response(\n' +
+        tabsString + '* ' + tabsString.repeat(tabsCount) + 'response=' + code + ',\n';
+    if (Object.entries(jsonData).length !== 0) {
+        response += startJsonData(jsonData);
+        tabsCount++;
+    } else {
+        tabsCount++;
+    }
 
-function response200() {
-    let response =  tabsString + '* @SWG\\Response(\n' +
-        tabsString + '* ' + tabsString.repeat(tabsCount) + 'response=200,\n' +
-        tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Schema(\n';
-    tabsCount++;
-    response += tabsString + '* ' + tabsString.repeat(tabsCount) + 'type="object",\n';
-    tabsCount++;
     return response;
 }
 
-function response200Description(description) {
-    return tabsString + '* ' + tabsString + '),\n' +
-        tabsString + '* ' + tabsString + 'description="' + description + '"\n' +
+function response200Description(description, jsonData) {
+    let response = '';
+    if (typeof jsonData === "object" && Array.isArray(jsonData)) {
+        tabsCount--;
+        response += tabsString + '* ' + tabsString.repeat(tabsCount) + '),\n';
+    }
+     response += tabsString + '* ' + tabsString.repeat(tabsCount) + 'description="' + description.replace(/"/g, '\"\"') + '"\n' +
         tabsString + '* )\n';
+
+    return response;
 }
 
 function errorCodeMessage(code, description) {
     return tabsString + '* @SWG\\Response(\n' +
         tabsString + '* ' + tabsString + 'response=' + code + ',\n' +
-        tabsString + '* ' + tabsString + 'description="' + description + '"\n' +
+        tabsString + '* ' + tabsString + 'description="' + description.replace(/"/g, '\"\"') + '"\n' +
         tabsString + '* )\n';
 }
 
-function inputParameters(name, description) {
-    return tabsString + '* @SWG\\Parameter(\n' +
+function inputParameters(name, description, inputJsonParameters) {
+    let response = tabsString + '* @SWG\\Parameter(\n' +
         tabsString + '* ' + tabsString.repeat(tabsCount) + 'name="' + name + '",\n' + //data
         tabsString + '* ' + tabsString.repeat(tabsCount) + 'in="body",\n' +
         tabsString + '* ' + tabsString.repeat(tabsCount) + 'type="object",\n' +
-        tabsString + '* ' + tabsString.repeat(tabsCount) + 'description="' + description + '",\n' +
-        tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Schema(\n' +
-        tabsString + '* ' + tabsString.repeat(2) + 'type="object",\n';
+        tabsString + '* ' + tabsString.repeat(tabsCount) + 'description="' + description.replace(/"/g, '\"\"') + '",\n';
+    response += startJsonData(inputJsonParameters);
+
+    return response;
 }
 
+function startJsonData(jsonData) {
+    let response = ''
+    if (typeof jsonData === "object") {
+        response = tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Schema(';
+        if (Array.isArray(jsonData)) {
+            response += 'type="array",\n';
+            tabsCount++;
+            response += tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Items(';
+        } else {
+            response += 'type="object",\n';
+        }
+    }
 
-function addParameters(name, description) {
-    console.log(tabsCount, tabsString);
+    return response;
+}
+
+function addParameters(name, description, type) {
     return tabsString + '* @SWG\\Parameter(\n' +
         tabsString + '* ' + tabsString.repeat(tabsCount) + 'name="' + name + '",\n' +
-        tabsString + '* ' + tabsString.repeat(tabsCount) + 'in="path",\n' +
+        tabsString + '* ' + tabsString.repeat(tabsCount) + 'in="' + type + '",\n' +
         tabsString + '* ' + tabsString.repeat(tabsCount) + 'type="string",\n' +
-        tabsString + '* ' + tabsString.repeat(tabsCount) + 'description="' + description + '"\n' +
+        tabsString + '* ' + tabsString.repeat(tabsCount) + 'description="' + description.replace(/"/g, '\"\"') + '"\n' +
         tabsString + '* )\n';
 }

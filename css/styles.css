@@ -75,3 +75,11 @@ body, html {
 code[class*="language-"] {
     line-height: unset;
 }
+
+.tekoway-logo {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    height: 100px;
+    width: 180px;
+}
