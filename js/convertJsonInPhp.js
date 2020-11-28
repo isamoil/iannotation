@@ -1,7 +1,11 @@
 var tabsCount = 1;
-var tabsString = '    ';
+var f_space = '    '; //four spaces
 var selectedCodes = ['200', '400', '403', '500'];
 var error = false;
+var errorMessage = '';
+var final_response;
+var countOfSplitPanels = 1;
+var aceOutputEditor = [];
 var defaultCodeDescription = {
     200: 'HTTP_OK',
     201: 'HTTP_CREATED',
@@ -12,21 +16,30 @@ var defaultCodeDescription = {
 }
 
 $(document).ready(function () {
+    document.getElementById('finalAnnotationsTextarea').style.display = 'none';
     editCodesList();
 });
 
+function switchResponseContainer() {
+    document.getElementsByClassName('code-toolbar')[0].style.display = 'none';
+    document.getElementById('finalAnnotationsTextarea').style.display = 'block';
+    document.getElementById('finalAnnotationsTextarea').innerHTML = final_response;
+}
+
 function generateAnnotation() {
+    document.getElementById('finalAnnotationsTextarea').style.display = 'none';
+    document.getElementsByClassName('code-toolbar')[0].style.display = 'block';
     tabsCount = 1;
     error = false;
-    const apiName = document.getElementById('apiDescription').value?
+    const apiName = document.getElementById('apiDescription').value ?
         document.getElementById('apiDescription').value.replace(/"/g, '\"\"') :
         'Api Name';
     const apiPath = document.getElementById('apiName').value;
     const method = document.getElementById('method').value
 
-    let response = tabsString + '/**\n' + tabsString + '* @SWG\\Tag(name="' + apiName.replace(/"/g, '\"\"') +
+    let response = f_space + '/**\n' + f_space + '* @SWG\\Tag(name="' + apiName.replace(/"/g, '\"\"') +
         '", description="';
-    if (apiPath){
+    if (apiPath) {
         response += 'Path: ' + apiPath.split('?')[0].replace(/"/g, '\"\"') + '; ';
     }
     response += 'Request Method:' + method.replace(/"/g, '\"\"').toUpperCase() + '")\n'
@@ -45,35 +58,38 @@ function generateAnnotation() {
             response += inputParameters(Object.keys(inputJsonParameters)[0], descriptionForInput, inputJsonParameters)
             response += convertJsonToAnnotation(inputJsonParameters);
             if (typeof inputJsonParameters === "object" && Array.isArray(inputJsonParameters) && !Array.isArray(inputJsonParameters[0])) {
-                response += tabsString + '* ' + tabsString + '),\n';
+                response += f_space + '* ' + f_space + '),\n';
                 tabsCount--;
             }
-                tabsCount--;
+            tabsCount--;
 
-            response += tabsString + '* ' + tabsString.repeat(tabsCount) + ')\n';
+            response += `${f_space}* ${f_space.repeat(tabsCount)})\n`;
+            response += `${f_space}* )\n`;
         }
     }
     selectedCodes.forEach(code => {
         let description = document.getElementById(code + '_input').value ?
             document.getElementById(code + '_input').value : defaultCodeDescription[code];
-        if (parseInt(code) === 200) {
-            const resDataInput = aceOutputEditor.getValue(0);
+        if (aceOutputEditor && aceOutputEditor[`${code}`]) {
+            const resDataInput = aceOutputEditor[`${code}`].getValue(0);
             let jsonData = resDataInput ? JSON.parse(resDataInput) : {};
 
-            response += responseData(200, jsonData);
+            response += responseData(code, jsonData);
             tabsCount--;
             response += convertJsonToAnnotation(jsonData);
-            // tabsCount--;
-            response += response200Description(description, jsonData);
+            tabsCount--;
+            response += responseDescription(description, jsonData);
         } else {
             response += errorCodeMessage(code, description)
         }
     });
-    response += tabsString + '**/'
+    response += f_space + '**/'
+    final_response = response;
+
     if (!error) {
         const lines = response.split('\n');
         const totalLines = lines.length;
-        const el = document.getElementById('finalAnnotations');
+        const el = document.getElementById('finalAnnotationsCode');
         el.innerText = '\n';
 
         lines.forEach(line => {
@@ -87,6 +103,13 @@ function generateAnnotation() {
         linesEl.html('');
         lines.forEach(line => {
             linesEl.append('<span></span>');
+        });
+    } else {
+        swal({
+            title: "Upsss!",
+            text: `Please update null objects: \n ${errorMessage.slice(0, -2)}`,
+            icon: "warning",
+            button: "I got it!",
         });
     }
 }
@@ -113,11 +136,6 @@ function editCodesList() {
     for (let i = 0; i < select1.length; i++) {
         if (select1.options[i].selected) selectedCodes.push(select1.options[i].value);
     }
-    if (selectedCodes.indexOf('200') < 0) {
-        document.getElementById('responseData').style.display = 'none';
-    } else {
-        document.getElementById('responseData').style.display = 'block';
-    }
     const responsesDivExist = document.getElementById('responsesDiv');
     if (responsesDivExist !== null) {
         responsesDivExist.remove()
@@ -130,22 +148,34 @@ function insertDescriptionInputs() {
     responsesDiv.id = 'responsesDiv';
 
     selectedCodes.forEach(code => {
-        if (document.getElementById(code) === null && code !== '200') {
+        if (document.getElementById(code) === null) {
             let divL = document.getElementById('divL');
             let codeDiv = document.createElement('div');
             let codeLabel = document.createElement('label');
-            let labelText = document.createTextNode('Description for code :' + code + ' ');
+            let labelText = document.createTextNode(`Description for code : ${code} `);
             let codeInput = document.createElement('input');
             let newLine = document.createElement('br');
+            let checkBoxContainer = document.createElement('label');
+            let checkBoxInput = document.createElement('input');
+            let checkBoxMark = document.createElement('span');
             codeLabel.appendChild(labelText);
             codeDiv.id = code;
             codeInput.placeholder = defaultCodeDescription[code] ? defaultCodeDescription[code] : '';
-            codeInput.id = code + '_input';
-            codeInput.className = 'form-control';
+            codeInput.id = `${code}_input`;
+            codeInput.className = 'form-control description-input';
             codeLabel.nodeValue = code;
+            checkBoxContainer.className = 'cb-container';
+            checkBoxInput.type = 'checkbox';
+            checkBoxInput.id = `${code}_checkbox`;
+            checkBoxInput.setAttribute("onchange", 'addJsonForCode(this)')
+            checkBoxMark.className = 'cb-checkmark';
             codeDiv.appendChild(codeLabel);
             codeDiv.appendChild(newLine);
             codeDiv.appendChild(codeInput);
+            checkBoxContainer.appendChild(document.createTextNode('JSON'));
+            checkBoxContainer.appendChild(checkBoxInput);
+            checkBoxContainer.appendChild(checkBoxMark);
+            codeDiv.appendChild(checkBoxContainer);
             responsesDiv.appendChild(codeDiv);
             divL.appendChild(responsesDiv);
             divL.insertBefore(responsesDiv, divL.lastChild)
@@ -161,15 +191,14 @@ function convertJsonToAnnotation(inputJson) {
         Object.keys(inputJson[0]).forEach(function (key) {
             finalString = redirectValue(finalString, key, inputJson[0][key]);
         });
-    } else  {
+    } else {
         tabsCount++;
         Object.keys(inputJson).forEach(function (key) {
             finalString = redirectValue(finalString, key, inputJson[key]);
         });
     }
 
-
-    return finalString;
+    return `${finalString.slice(0, -2)}\n`;
 }
 
 function redirectValue(finalString, key, value) {
@@ -191,8 +220,9 @@ function redirectValue(finalString, key, value) {
             if (Array.isArray(value)) {
                 finalString += addArrayProperty(key, value)
             } else if (!value) {
-                alert('Please update null objects: ' + key);
+                // alert('Please update null objects: ' + key);
                 error = true;
+                errorMessage += key + ', ';
                 return 0;
             } else {
                 tabsCount++;
@@ -227,7 +257,7 @@ function addQueryParameters() {
     if (apiParts.length > 1) {
         let itemsApiQuery = apiParts[1].split('&');
         itemsApiQuery.forEach((item) => {
-            response = addParameters(item.split('=')[0],item.substr(itemsApiQuery.indexOf('=') + 1), 'query');
+            response = addParameters(item.split('=')[0], item.substr(itemsApiQuery.indexOf('=') + 1), 'query');
         })
     }
 
@@ -235,24 +265,26 @@ function addQueryParameters() {
 }
 
 function addStringProperty(key, value) {
-    return tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Property(property="' + key + '", type="string", example="' + value + '"),\n';
+    return f_space + '* ' + f_space.repeat(tabsCount) + '@SWG\\Property(property="' + key + '", type="string", example="' + value + '"),\n';
 }
 
 function addObjectProperty(key, value) {
-    let result = tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Property(property="' + key + '", type="object",\n';
+    let result = f_space + '* ' + f_space.repeat(tabsCount) + '@SWG\\Property(property="' + key + '", type="object",\n';
     tabsCount++;
     Object.keys(value).forEach(function (newKey) {
         result += redirectValue('', newKey, value[newKey]);
     });
     tabsCount--;
 
-    return result += tabsString + '* ' + tabsString.repeat(tabsCount) + "),\n"
+    return result += f_space + '* ' + f_space.repeat(tabsCount) + "),\n"
 }
 
 function addArrayProperty(key, value) {
-    let result = tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Property(property="' + key + '", type="array",\n';
+    console.log(tabsCount);
+
+    let result = f_space + '* ' + f_space.repeat(tabsCount) + '@SWG\\Property(property="' + key + '", type="array",\n';
     tabsCount++;
-    result += tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Items(';
+    result += f_space + '* ' + f_space.repeat(tabsCount) + '@SWG\\Items(';
     if (typeof value[0] === "object") {
         if (!Array.isArray(value[0])) {
             result += 'type="object",\n'
@@ -261,47 +293,45 @@ function addArrayProperty(key, value) {
         Object.keys(value[0]).forEach(function (newKey) {
             result += redirectValue('', newKey, value[0][newKey]);
         });
-        // tabsCount--;
     } else {
         switch (typeof value[0]) {
-            case "string":
+            case 'string':
                 if (Date.parse(value[0])) {
-                    result += 'type="datetime", example=' + value[0] + ')\n';
+                    result += `type="datetime", example=${value[0]})\n`;
                 } else {
-                    result += 'type="' + typeof value[0] + '", example="' + value[0] + '")\n';
+                    result += `type="${typeof value[0]}", example="${value[0]}")\n`;
                 }
                 break;
-            case "number":
-                result += 'type="' + typeof value[0] + '", example=' + value[0] + ')\n';
+            case 'number':
+                result += `type="${typeof value[0]}", example=${value[0]})\n`;
                 break;
-            case "boolean":
-                result += 'type="boolean", example=' + value[0] + ')\n';
+            case 'boolean':
+                result += `type="boolean", example=${value[0]})\n`;
                 break;
         }
     }
     tabsCount--;
-        result += tabsString + '* ' + tabsString.repeat(tabsCount) + "),\n"
+    result += f_space + '* ' + f_space.repeat(tabsCount) + "),\n"
     tabsCount--;
 
-    return result += tabsString + '* ' + tabsString.repeat(tabsCount) + "),\n"
+    return result += f_space + '* ' + f_space.repeat(tabsCount) + "),\n"
 }
 
 function addBooleanProperty(key, value) {
-    return tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Property(property="' + key + '", type="boolean", example=' + value + '),\n';
+    return `${f_space}* ${f_space.repeat(tabsCount)}@SWG\\Property(property="${key}", type="boolean", example=${value}),\n`;
 
 }
 
 function addIntegerProperty(key, value) {
-    return tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Property(property="' + key + '", type="int", example=' + value + '),\n';
+    return `${f_space}* ${f_space.repeat(tabsCount)}@SWG\\Property(property="${key}", type="int", example=${value}),\n`;
 }
 
 function addDateProperty(key, value) {
-    return tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Property(property="' + key + '", type="datetime", example="' + value + '"),\n';
+    return `${f_space}* ${f_space.repeat(tabsCount)}@SWG\\Property(property="${key}", type="datetime", example="${value}"),\n`;
 }
 
 function responseData(code, jsonData) {
-    let response = tabsString + '* @SWG\\Response(\n' +
-        tabsString + '* ' + tabsString.repeat(tabsCount) + 'response=' + code + ',\n';
+    let response = `${f_space}* @SWG\\Response(\n${f_space}* ${f_space.repeat(tabsCount)}response=${code},\n`;
     if (Object.entries(jsonData).length !== 0) {
         response += startJsonData(jsonData);
         tabsCount++;
@@ -312,31 +342,32 @@ function responseData(code, jsonData) {
     return response;
 }
 
-function response200Description(description, jsonData) {
+function responseDescription(description, jsonData) {
     let response = '';
-    if (typeof jsonData === "object" && Array.isArray(jsonData)) {
+    if (typeof jsonData === 'object' && Array.isArray(jsonData)) {
         tabsCount--;
-        response += tabsString + '* ' + tabsString.repeat(tabsCount) + '),\n';
+        response += `${f_space}* ${f_space.repeat(tabsCount)}),\n`;
     }
-     response += tabsString + '* ' + tabsString.repeat(tabsCount) + 'description="' + description.replace(/"/g, '\"\"') + '"\n' +
-        tabsString + '* )\n';
+    response += `${f_space}* ${f_space.repeat(tabsCount)}),\n`;
+    response += `${f_space}* ${f_space.repeat(tabsCount)}description="${description.replace(/"/g, '\"\"')}"\n${f_space}* )\n`;
 
     return response;
 }
 
 function errorCodeMessage(code, description) {
-    return tabsString + '* @SWG\\Response(\n' +
-        tabsString + '* ' + tabsString + 'response=' + code + ',\n' +
-        tabsString + '* ' + tabsString + 'description="' + description.replace(/"/g, '\"\"') + '"\n' +
-        tabsString + '* )\n';
+    return f_space + '* @SWG\\Response(\n' +
+        f_space + '* ' + f_space + 'response=' + code + ',\n' +
+        f_space + '* ' + f_space + 'description="' + description.replace(/"/g, '\"\"') + '"\n' +
+        f_space + '* )\n';
 }
 
 function inputParameters(name, description, inputJsonParameters) {
-    let response = tabsString + '* @SWG\\Parameter(\n' +
-        tabsString + '* ' + tabsString.repeat(tabsCount) + 'name="' + name + '",\n' + //data
-        tabsString + '* ' + tabsString.repeat(tabsCount) + 'in="body",\n' +
-        tabsString + '* ' + tabsString.repeat(tabsCount) + 'type="object",\n' +
-        tabsString + '* ' + tabsString.repeat(tabsCount) + 'description="' + description.replace(/"/g, '\"\"') + '",\n';
+    console.log(tabsCount);
+    let response = f_space + '* @SWG\\Parameter(\n' +
+        f_space + '* ' + f_space.repeat(tabsCount) + 'name="' + name + '",\n' + //data
+        f_space + '* ' + f_space.repeat(tabsCount) + 'in="body",\n' +
+        f_space + '* ' + f_space.repeat(tabsCount) + 'type="object",\n' +
+        f_space + '* ' + f_space.repeat(tabsCount) + 'description="' + description.replace(/"/g, '\"\"') + '",\n';
     response += startJsonData(inputJsonParameters);
 
     return response;
@@ -345,11 +376,11 @@ function inputParameters(name, description, inputJsonParameters) {
 function startJsonData(jsonData) {
     let response = ''
     if (typeof jsonData === "object") {
-        response = tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Schema(';
+        response = f_space + '* ' + f_space.repeat(tabsCount) + '@SWG\\Schema(';
         if (Array.isArray(jsonData)) {
             response += 'type="array",\n';
             tabsCount++;
-            response += tabsString + '* ' + tabsString.repeat(tabsCount) + '@SWG\\Items(';
+            response += f_space + '* ' + f_space.repeat(tabsCount) + '@SWG\\Items(';
         } else {
             response += 'type="object",\n';
         }
@@ -359,10 +390,41 @@ function startJsonData(jsonData) {
 }
 
 function addParameters(name, description, type) {
-    return tabsString + '* @SWG\\Parameter(\n' +
-        tabsString + '* ' + tabsString.repeat(tabsCount) + 'name="' + name + '",\n' +
-        tabsString + '* ' + tabsString.repeat(tabsCount) + 'in="' + type + '",\n' +
-        tabsString + '* ' + tabsString.repeat(tabsCount) + 'type="string",\n' +
-        tabsString + '* ' + tabsString.repeat(tabsCount) + 'description="' + description.replace(/"/g, '\"\"') + '"\n' +
-        tabsString + '* )\n';
+    return f_space + '* @SWG\\Parameter(\n' +
+        f_space + '* ' + f_space.repeat(tabsCount) + 'name="' + name + '",\n' +
+        f_space + '* ' + f_space.repeat(tabsCount) + 'in="' + type + '",\n' +
+        f_space + '* ' + f_space.repeat(tabsCount) + 'type="string",\n' +
+        f_space + '* ' + f_space.repeat(tabsCount) + 'description="' + description.replace(/"/g, '\"\"') + '"\n' +
+        f_space + '* )\n';
+}
+
+function addJsonForCode(checkbox) {
+    const code = checkbox.id.split('_')[0];
+    if (checkbox.checked) {
+        if (document.getElementById(`split-parent${code}`)) {
+            document.getElementById(`split-parent${code}`).hidden = false;
+        } else {
+            const codeDiv = document.getElementById(code);
+            const splitParent = document.createElement('div');
+            const splitPanel = document.createElement('div');
+            const output = document.createElement('div');
+            splitParent.className = 'split-parent';
+            splitParent.id = `split-parent${code}`;
+            splitPanel.id = `split-panel${code}`;
+            splitParent.appendChild(document.createTextNode(`JSON response data for ${code} code:`));
+            output.id = `output_${code}`;
+            splitPanel.appendChild(output);
+            splitParent.appendChild(splitPanel);
+            codeDiv.appendChild(splitParent);
+            jeSplitPanels.push([`#split-panel${code}`]);
+            window.Split(jeSplitPanels[countOfSplitPanels], jeSplitCfg);
+            document.querySelector(`#output_${code}`); // Form output
+            aceOutputEditor.push(`${code}`);
+            aceOutputEditor[`${code}`] = createEditor(document.querySelector(`#output_${code}`), {mode: 'ace/mode/json'});
+            countOfSplitPanels++;
+        }
+    } else {
+        document.getElementById(`split-parent${code}`).hidden = true;
+    }
+
 }

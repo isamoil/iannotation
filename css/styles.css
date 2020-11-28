@@ -66,7 +66,7 @@ body, html {
     height: 100%;
 }
 
-#finalAnnotations {
+#finalAnnotationsCode, #finalAnnotationsTextarea {
     color: #4c9051;
     font-size: 15px;
     padding-top: 2px;
@@ -82,4 +82,81 @@ code[class*="language-"] {
     margin-right: auto;
     height: 100px;
     width: 180px;
+}
+
+.description-input {
+    width: 80%!important;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+/* Checkboxes style */
+
+/* The container */
+.cb-container {
+    display: inline-block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+}
+
+/* Hide the browser's default checkbox */
+.cb-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* cb-checkmark a custom checkbox */
+.cb-checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: lightskyblue;
+}
+
+/* On mouse-over, add a grey background color */
+.cb-container:hover input ~ .cb-checkmark {
+    background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.cb-container input:checked ~ .cb-checkmark {
+    background-color: #2196F3;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.cb-checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the checkmark when checked */
+.cb-container input:checked ~ .cb-checkmark:after {
+    display: block;
+}
+
+/* Style the checkmark/indicator */
+.cb-container .cb-checkmark:after {
+    left: 9px;
+    top: 5px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
 }

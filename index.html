@@ -25,15 +25,21 @@
 
     <!-- Split.js - https://github.com/nathancahill/split/ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.5.10/split.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <link href="css/prism.css" rel="stylesheet" />
     <link rel="stylesheet" href="css/jsoneditor_demo.min.css"/>
     <link rel="stylesheet" href="css/styles.css">
-
-    <script src="js/scripts.js"></script>
+    <script src="js/convertJsonInPhp.js"></script>
+    <script src="js/convertPhpInJson.js"></script>
     <title>Annotation</title>
 </head>
 <body>
+<!--Samoil Ion -->
 <img src="https://www.tekoway.com/wp-content/uploads/2017/08/logo.png" class="tekoway-logo">
+<div class="generate-div">
+    <button class="generate-buttons" onclick="generateAnnotation()">Convert Json into Annotations -></button>
+    <button class="generate-buttons red" onclick="generateJson()"><- Convert Annotations into Json</button>
+</div>
 <div class="full-screen">
     <div class="side left" id="divL">
         <div class="form-group">
@@ -57,7 +63,7 @@
 
         <div id="paramsData">
             <div class="form-group">
-                <h4 draggable="false">JSON input/params data</h4>
+                <h4 draggable="false">JSON input data/parameters </h4>
                 <div class="split-parent">
                     <div id="split-panel1">
                         <div id="schema"></div>
@@ -65,7 +71,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label for="descriptionParamsDataInput">Description for input Parameters:</label>
+                <label for="descriptionParamsDataInput">Description for input data:</label>
                 <input id="descriptionParamsDataInput" type="text" class="form-control" placeholder="The input parameters"/>
             </div>
         </div>
@@ -140,36 +146,34 @@
                 <option value="511">HTTP_NETWORK_AUTHENTICATION_REQUIRED: 511</option>
             </select>
         </div>
-        <div id="responseData">
-            <div class="form-group">
-                <h4>JSON response data for 200 code:</h4>
-                <div class="split-parent">
-                    <div id="split-panel5">
-                        <div id="output"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="200_input">Description for code 200 :</label>
-                <input class="form-control" id="200_input" placeholder="HTTP_OK">
-            </div>
-        </div>
+<!--        <div id="responseData">-->
+<!--            <div class="form-group">-->
+<!--                <h4>JSON response data for 200 code:</h4>-->
+<!--                <div class="split-parent">-->
+<!--                    <div id="split-panel5">-->
+<!--                        <div id="output"></div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label for="200_input">Description for code 200 :</label><br>-->
+<!--                <input class="form-control description-input" id="200_input" placeholder="HTTP_OK">-->
+<!--                <label class="cb-container">JSON-->
+<!--                    <input type="checkbox" checked="checked" id="200_checkbox" onchange="addJsonForCode(this)">-->
+<!--                    <span class="cb-checkmark"></span>-->
+<!--                </label>-->
+<!--            </div>-->
+<!--        </div>-->
     </div>
 
     <div class="side right form-group">
-        <label for="finalAnnotations">Result</label><br>
-        <pre class="line-numbers language-unknown">
-            <code id="finalAnnotations">
-
+        <label>Result</label><br>
+        <pre class="line-numbers language-unknown" ondblclick="switchResponseContainer()">
+            <code id="finalAnnotationsCode">
             </code>
         </pre>
-<!--        <textarea id="finalAnnotations" class="form-control textarea large" readonly></textarea>-->
+        <textarea id="finalAnnotationsTextarea" class="form-control textarea large"></textarea>
     </div>
-</div>
-
-<div class="generate-div">
-    <button class="generate-buttons" onclick="generateAnnotation()">Convert Json into Annotations -></button>
-    <button class="generate-buttons red" onclick="generateAnnotation()" disabled><- Convert Annotations into Json</button>
 </div>
 
 <script src="js/jsoneditor_demo.js"></script>

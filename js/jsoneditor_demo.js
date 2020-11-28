@@ -20,11 +20,10 @@ var aceTheme = 'ace/theme/xcode';
 
 // ACE Editor placeholders
 var jeEditSchema = document.querySelector('#schema');
-var jeOutput = document.querySelector('#output'); // Form output
+// var jeOutput = document.querySelector('#output'); // Form output
 
 // ACE Editor instances
 var aceSchemaEditor;
-var aceOutputEditor;
 
 // Split panels
 var jeSplitCfg = {
@@ -34,7 +33,6 @@ var jeSplitCfg = {
 };
 var jeSplitPanels = [
     ['#split-panel1'],
-    ['#split-panel5']
 ];
 
 
@@ -76,9 +74,8 @@ var createEditor = function (el, options) {
 aceSchemaEditor = createEditor(jeEditSchema, {mode: 'ace/mode/json'});
 
 // Setup ACE editor for editing output values
-aceOutputEditor = createEditor(jeOutput, {mode: 'ace/mode/json'});
+// aceOutputEditor = createEditor(jeOutput, {mode: 'ace/mode/json'});
 
 // Set resizable split panels
 window.Split(jeSplitPanels[0], jeSplitCfg);
-window.Split(jeSplitPanels[1], jeSplitCfg);
 
