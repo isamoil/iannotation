@@ -1,34 +1,17 @@
 var tabsCount = 1;
 var f_space = '    '; //four spaces
-var selectedCodes = ['200', '400', '403', '500'];
+var selectedCodes = [200, 400, 403, 500];
+var codes = [{value: 200,title: "HTTP_OK"}, {value: 201,title: "HTTP_CREATED"}, {value: 204,title: "HTTP_NO_CONTENT"}, {value: 400,title: "HTTP_BAD_REQUEST"}, {value: 403,title: "HTTP_FORBIDDEN"}, {value: 500,title: "HTTP_INTERNAL_SERVER_ERROR"}, {value: 100,title: "HTTP_CONTINUE"}, {value: 101,title: "HTTP_SWITCHING_PROTOCOLS"}, {value: 102,title: "HTTP_PROCESSING"}, {value: 103,title: "HTTP_EARLY_HINTS"}, {value: 202,title: "HTTP_ACCEPTED"}, {value: 203,title: "HTTP_NON_AUTHORITATIVE_INFORMATION"}, {value: 204,title: "HTTP_NO_CONTENT"}, {value: 205,title: "HTTP_RESET_CONTENT"}, {value: 206,title: "HTTP_PARTIAL_CONTENT"}, {value: 207,title: "HTTP_MULTI_STATUS"}, {value: 208,title: "HTTP_ALREADY_REPORTED"}, {value: 226,title: "HTTP_IM_USED"}, {value: 300,title: "HTTP_MULTIPLE_CHOICES"}, {value: 301,title: "HTTP_MOVED_PERMANENTLY"}, {value: 302,title: "HTTP_FOUND"}, {value: 303,title: "HTTP_SEE_OTHER"}, {value: 304,title: "HTTP_NOT_MODIFIED"}, {value: 305,title: "HTTP_USE_PROXY"}, {value: 306,title: "HTTP_RESERVED"}, {value: 307,title: "HTTP_TEMPORARY_REDIRECT"}, {value: 308,title: "HTTP_PERMANENTLY_REDIRECT"}, {value: 401,title: "HTTP_UNAUTHORIZED"}, {value: 402,title: "HTTP_PAYMENT_REQUIRED"}, {value: 404,title: "HTTP_NOT_FOUND"}, {value: 405,title: "HTTP_METHOD_NOT_ALLOWED"}, {value: 406,title: "HTTP_NOT_ACCEPTABLE"}, {value: 407,title: "HTTP_PROXY_AUTHENTICATION_REQUIRED"}, {value: 408,title: "HTTP_REQUEST_TIMEOUT"}, {value: 409,title: "HTTP_CONFLICT"}, {value: 410,title: "HTTP_GONE"}, {value: 411,title: "HTTP_LENGTH_REQUIRED"}, {value: 412,title: "HTTP_PRECONDITION_FAILED"}, {value: 413,title: "HTTP_REQUEST_ENTITY_TOO_LARGE"}, {value: 414,title: "HTTP_REQUEST_URI_TOO_LONG"}, {value: 415,title: "HTTP_UNSUPPORTED_MEDIA_TYPE"}, {value: 416,title: "HTTP_REQUESTED_RANGE_NOT_SATISFIABLE"}, {value: 417,title: "HTTP_EXPECTATION_FAILED"}, {value: 418,title: "HTTP_I_AM_A_TEAPOT"}, {value: 421,title: "HTTP_MISDIRECTED_REQUEST"}, {value: 422,title: "HTTP_UNPROCESSABLE_ENTITY"}, {value: 423,title: "HTTP_LOCKED"}, {value: 424,title: "HTTP_FAILED_DEPENDENCY"}, {value: 425,title: "HTTP_RESERVED_FOR_WEBDAV_ADVANCED_COLLECTIONS_EXPIRED_PROPOSAL"}, {value: 425,title: "HTTP_TOO_EARLY"}, {value: 426,title: "HTTP_UPGRADE_REQUIRED"}, {value: 428,title: "HTTP_PRECONDITION_REQUIRED"}, {value: 429,title: "HTTP_TOO_MANY_REQUESTS"}, {value: 431,title: "HTTP_REQUEST_HEADER_FIELDS_TOO_LARGE"}, {value: 451,title: "HTTP_UNAVAILABLE_FOR_LEGAL_REASONS"}, {value: 501,title: "HTTP_NOT_IMPLEMENTED"}, {value: 502,title: "HTTP_BAD_GATEWAY"}, {value: 503,title: "HTTP_SERVICE_UNAVAILABLE"}, {value: 504,title: "HTTP_GATEWAY_TIMEOUT"}, {value: 505,title: "HTTP_VERSION_NOT_SUPPORTED"}, {value: 506,title: "HTTP_VARIANT_ALSO_NEGOTIATES_EXPERIMENTAL"}, {value: 507,title: "HTTP_INSUFFICIENT_STORAGE"}, {value: 508,title: "HTTP_LOOP_DETECTED"}, {value: 510,title: "HTTP_NOT_EXTENDED"}, {value: 511,title: "HTTP_NETWORK_AUTHENTICATION_REQUIRED"}];
 var error = false;
 var errorMessage = '';
-var final_response;
+var final_response = null;
 var countOfSplitPanels = 1;
 var aceOutputEditor = [];
-var defaultCodeDescription = {
-    200: 'HTTP_OK',
-    201: 'HTTP_CREATED',
-    204: 'No content',
-    400: 'Bad request',
-    403: 'Permission denied',
-    500: 'Internal server error',
-}
-
+var defaultCodeDescription = {200: 'HTTP_OK', 201: 'HTTP_CREATED', 204: 'No content', 400: 'Bad request', 403: 'Permission denied', 500: 'Internal server error'};
 $(document).ready(function () {
-    document.getElementById('finalAnnotationsTextarea').style.display = 'none';
     editCodesList();
 });
-
-function switchResponseContainer() {
-    document.getElementsByClassName('code-toolbar')[0].style.display = 'none';
-    document.getElementById('finalAnnotationsTextarea').style.display = 'block';
-    document.getElementById('finalAnnotationsTextarea').innerHTML = final_response;
-}
-
 function generateAnnotation() {
-    document.getElementById('finalAnnotationsTextarea').style.display = 'none';
-    document.getElementsByClassName('code-toolbar')[0].style.display = 'block';
     tabsCount = 1;
     error = false;
     const apiName = document.getElementById('apiDescription').value ?
@@ -43,17 +26,15 @@ function generateAnnotation() {
         response += 'Path: ' + apiPath.split('?')[0].replace(/"/g, '\"\"') + '; ';
     }
     response += 'Request Method:' + method.replace(/"/g, '\"\"').toUpperCase() + '")\n'
-
     response += addPathParameters();
-
     response += addQueryParameters();
-
     const methods = ['post', 'patch', 'put'];
     const exist = methods.indexOf(method)
+
     if (exist >= 0) {
         let inputParams = aceSchemaEditor.getValue(0);
         let inputJsonParameters = inputParams ? JSON.parse(inputParams) : {};
-        if (Object.entries(inputJsonParameters).length !== 0) {
+        if (Object.keys(inputJsonParameters).length !== 0) {
             const descriptionForInput = document.getElementById('descriptionParamsDataInput').value || 'The input parameters';
             response += inputParameters(Object.keys(inputJsonParameters)[0], descriptionForInput, inputJsonParameters)
             response += convertJsonToAnnotation(inputJsonParameters);
@@ -68,8 +49,8 @@ function generateAnnotation() {
         }
     }
     selectedCodes.forEach(code => {
-        let description = document.getElementById(code + '_input').value ?
-            document.getElementById(code + '_input').value : defaultCodeDescription[code];
+        let description = document.getElementById(`${code}_input`).value ?
+            document.getElementById(`${code}_input`).value : defaultCodeDescription[code];
         if (aceOutputEditor && aceOutputEditor[`${code}`]) {
             const resDataInput = aceOutputEditor[`${code}`].getValue(0);
             let jsonData = resDataInput ? JSON.parse(resDataInput) : {};
@@ -88,7 +69,6 @@ function generateAnnotation() {
 
     if (!error) {
         const lines = response.split('\n');
-        const totalLines = lines.length;
         const el = document.getElementById('finalAnnotationsCode');
         el.innerText = '\n';
 
@@ -101,17 +81,18 @@ function generateAnnotation() {
         linesEl.removeAttr('hidden');
         linesEl.css('display', 'block');
         linesEl.html('');
-        lines.forEach(line => {
+        lines.forEach(() => {
             linesEl.append('<span></span>');
         });
     } else {
         swal({
             title: "Upsss!",
-            text: `Please update null objects: \n ${errorMessage.slice(0, -2)}`,
+            text: `Please update null/empty objects/arrays: \n ${errorMessage.slice(0, -2)}`,
             icon: "warning",
             button: "I got it!",
         });
     }
+    $(window).scrollTop(0);
 }
 
 $(
@@ -119,7 +100,7 @@ $(
         $('#method').on('change', (event) => {
             const methods = ['post', 'patch', 'put'];
             const exist = methods.indexOf(event.target.value)
-            let paramsData = document.getElementById("paramsData");
+            let paramsData = document.getElementById('paramsData');
             if (exist >= 0) {
                 paramsData.style.display = 'block';
             } else {
@@ -131,8 +112,9 @@ $(
 );
 
 function editCodesList() {
+    insertMessageCodes();
     selectedCodes = [];
-    let select1 = document.getElementById("responseCode");
+    let select1 = document.getElementById('responseCode');
     for (let i = 0; i < select1.length; i++) {
         if (select1.options[i].selected) selectedCodes.push(select1.options[i].value);
     }
@@ -143,10 +125,25 @@ function editCodesList() {
     this.insertDescriptionInputs();
 }
 
+function insertMessageCodes() {
+    let codesSelect = document.getElementById('responseCode');
+    codes.forEach((code) => {
+        let codeOption = document.createElement('option');
+        let codeOptionText = document.createTextNode(`${code.title}:${code.value}`);
+        codeOption.value = code.value;
+        codeOption.id = `${code.value}_code`;
+        codeOption.title = code.title;
+        if(selectedCodes.indexOf(code.value) >= 0) {
+            codeOption.selected = true;
+        }
+        codeOption.appendChild(codeOptionText);
+        codesSelect.appendChild(codeOption);
+    })
+}
+
 function insertDescriptionInputs() {
     let responsesDiv = document.createElement('div');
     responsesDiv.id = 'responsesDiv';
-
     selectedCodes.forEach(code => {
         if (document.getElementById(code) === null) {
             let divL = document.getElementById('divL');
@@ -167,7 +164,7 @@ function insertDescriptionInputs() {
             checkBoxContainer.className = 'cb-container';
             checkBoxInput.type = 'checkbox';
             checkBoxInput.id = `${code}_checkbox`;
-            checkBoxInput.setAttribute("onchange", 'addJsonForCode(this)')
+            checkBoxInput.setAttribute('onchange', 'addJsonForCode(this)')
             checkBoxMark.className = 'cb-checkmark';
             codeDiv.appendChild(codeLabel);
             codeDiv.appendChild(newLine);
@@ -185,17 +182,21 @@ function insertDescriptionInputs() {
 
 function convertJsonToAnnotation(inputJson) {
     let finalString = '';
-    if (Array.isArray(inputJson) && typeof inputJson[0] === "object" && !Array.isArray(inputJson[0])) {
+    if (Array.isArray(inputJson) && typeof inputJson[0] === 'object' && !Array.isArray(inputJson[0]) &&
+        Object.keys(inputJson[0]).length !== 0 && inputJson.length !== 0) {
         finalString += 'type="object",\n';
         tabsCount++;
         Object.keys(inputJson[0]).forEach(function (key) {
             finalString = redirectValue(finalString, key, inputJson[0][key]);
         });
     } else {
-        tabsCount++;
-        Object.keys(inputJson).forEach(function (key) {
-            finalString = redirectValue(finalString, key, inputJson[key]);
-        });
+        if (Object.keys(inputJson).length) {
+            tabsCount++;
+            Object.keys(inputJson).forEach(function (key) {
+                finalString = redirectValue(finalString, key, inputJson[key]);
+            });
+        }
+
     }
 
     return `${finalString.slice(0, -2)}\n`;
@@ -203,31 +204,38 @@ function convertJsonToAnnotation(inputJson) {
 
 function redirectValue(finalString, key, value) {
     switch (typeof value) {
-        case "string":
+        case 'string':
             if (Date.parse(value)) {
                 finalString += addDateProperty(key, value.replace(/"/g, '\"\"'))
             } else {
                 finalString += addStringProperty(key, value.replace(/"/g, '\"\"'))
             }
             break;
-        case "number":
+        case 'number':
             finalString += addIntegerProperty(key, value)
             break;
-        case "boolean":
+        case 'boolean':
             finalString += addBooleanProperty(key, value)
             break;
-        case "object":
+        case 'object':
             if (Array.isArray(value)) {
-                finalString += addArrayProperty(key, value)
+                if (value.length !== 0) {
+                    finalString += addArrayProperty(key, value)
+                } else {
+                    errorMessage += key + ', ';
+                }
             } else if (!value) {
-                // alert('Please update null objects: ' + key);
                 error = true;
                 errorMessage += key + ', ';
                 return 0;
             } else {
-                tabsCount++;
-                finalString += addObjectProperty(key, value)
-                tabsCount--;
+                if (Object.keys(value).length !== 0){
+                    tabsCount++;
+                    finalString += addObjectProperty(key, value)
+                    tabsCount--;
+                } else {
+                    errorMessage += key + ', ';
+                }
             }
             break;
     }
@@ -280,12 +288,10 @@ function addObjectProperty(key, value) {
 }
 
 function addArrayProperty(key, value) {
-    console.log(tabsCount);
-
     let result = f_space + '* ' + f_space.repeat(tabsCount) + '@SWG\\Property(property="' + key + '", type="array",\n';
     tabsCount++;
     result += f_space + '* ' + f_space.repeat(tabsCount) + '@SWG\\Items(';
-    if (typeof value[0] === "object") {
+    if (typeof value[0] === 'object') {
         if (!Array.isArray(value[0])) {
             result += 'type="object",\n'
         }
@@ -319,7 +325,6 @@ function addArrayProperty(key, value) {
 
 function addBooleanProperty(key, value) {
     return `${f_space}* ${f_space.repeat(tabsCount)}@SWG\\Property(property="${key}", type="boolean", example=${value}),\n`;
-
 }
 
 function addIntegerProperty(key, value) {
@@ -332,7 +337,7 @@ function addDateProperty(key, value) {
 
 function responseData(code, jsonData) {
     let response = `${f_space}* @SWG\\Response(\n${f_space}* ${f_space.repeat(tabsCount)}response=${code},\n`;
-    if (Object.entries(jsonData).length !== 0) {
+    if (Object.keys(jsonData).length !== 0) {
         response += startJsonData(jsonData);
         tabsCount++;
     } else {
@@ -362,7 +367,6 @@ function errorCodeMessage(code, description) {
 }
 
 function inputParameters(name, description, inputJsonParameters) {
-    console.log(tabsCount);
     let response = f_space + '* @SWG\\Parameter(\n' +
         f_space + '* ' + f_space.repeat(tabsCount) + 'name="' + name + '",\n' + //data
         f_space + '* ' + f_space.repeat(tabsCount) + 'in="body",\n' +
@@ -377,12 +381,14 @@ function startJsonData(jsonData) {
     let response = ''
     if (typeof jsonData === "object") {
         response = f_space + '* ' + f_space.repeat(tabsCount) + '@SWG\\Schema(';
-        if (Array.isArray(jsonData)) {
+        if (Array.isArray(jsonData) && jsonData.length !== 0) {
             response += 'type="array",\n';
             tabsCount++;
             response += f_space + '* ' + f_space.repeat(tabsCount) + '@SWG\\Items(';
         } else {
-            response += 'type="object",\n';
+            if (Object.keys(jsonData).length !== 0) {
+                response += 'type="object",\n';
+            }
         }
     }
 
@@ -426,5 +432,4 @@ function addJsonForCode(checkbox) {
     } else {
         document.getElementById(`split-parent${code}`).hidden = true;
     }
-
 }

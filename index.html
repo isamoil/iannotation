@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description JSON convetor" content="Convert Json in PHP Annotation"/>
     <link rel="icon" href="images/icon.png">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -26,158 +27,177 @@
     <!-- Split.js - https://github.com/nathancahill/split/ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.5.10/split.min.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <link href="css/prism.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/jsoneditor_demo.min.css"/>
-    <link rel="stylesheet" href="css/styles.css">
-    <script src="js/convertJsonInPhp.js"></script>
-    <script src="js/convertPhpInJson.js"></script>
+    <link href="css/prism.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="css/jsoneditor.min.css"/>
+    <link rel="stylesheet" href="css/styles.min.css">
+    <link rel="stylesheet" href="css/xpLoader.min.css">
+    <script src="js/index.js"></script>
+    <script src="js/plugins/contextMenu.js"></script>
+    <script>
+        $(window).on('beforeunload', function () {
+            var delay = 5;
+            setTimeout("loadExtraFiles();", delay * 1000);
+            $(window).scrollTop(0);
+        });
+    </script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2LC8C9BVYM"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+
+        gtag('config', 'G-2LC8C9BVYM');
+    </script>
+    <script type="text/javascript">
+        window.addEventListener("load", function () {
+            document.body.className = "body-xp-loader";
+            document.getElementById('pageContent').hidden = true;
+            setTimeout(() => {
+                document.body.className = "base-body-class";
+                document.getElementById('pageContent').hidden = false;
+                document.getElementsByClassName('window-xp-loader')[0].hidden = true;
+            }, 2300);
+        }, false);
+    </script>
     <title>Annotation</title>
 </head>
 <body>
-<!--Samoil Ion -->
-<img src="https://www.tekoway.com/wp-content/uploads/2017/08/logo.png" class="tekoway-logo">
-<div class="generate-div">
-    <button class="generate-buttons" onclick="generateAnnotation()">Convert Json into Annotations -></button>
-    <button class="generate-buttons red" onclick="generateJson()"><- Convert Annotations into Json</button>
-</div>
-<div class="full-screen">
-    <div class="side left" id="divL">
-        <div class="form-group">
-            <label for="apiDescription">API name:</label><br>
-            <input class="form-control" type="text" id="apiDescription" name="apiDescription" placeholder="game/games">
-        </div>
-        <div class="form-group">
-            <label for="apiName">API path:</label>
-            <input class="form-control" type="text" id="apiName" name="apiName" placeholder="game/draws/{id}?param=668"><br/>
-        </div>
-        <div class="form-group">
-            <label for="method">Choose a Method:</label>
-            <select class="form-control" name="method" id="method">
-                <option value="post">POST</option>
-                <option value="get">GET</option>
-                <option value="patch">PATCH</option>
-                <option value="delete">DELETE</option>
-                <option value="put">PUT</option>
-            </select>
-        </div>
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!--
+        @Samoil Ion
+-->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
 
-        <div id="paramsData">
+<div class="window-xp-loader">
+    <div class="logo-xp-loader">
+        <p class="top-xp-loader">Ion Samoil</p>
+        <p class="mid-xp-loader">IAnnotation<span>2.0</span></p>
+        <p class="bottom-xp-loader">Tekoway</p>
+    </div>
+    <div class="container-xp-loader">
+        <div class="box-xp-loader"></div>
+        <div class="box-xp-loader"></div>
+        <div class="box-xp-loader"></div>
+    </div>
+</div>
+<div id="pageContent" hidden>
+    <img src="images/logo.png" class="tekoway-logo">
+
+    <div class="full-screen">
+        <div class="side left" id="divL">
             <div class="form-group">
-                <h4 draggable="false">JSON input data/parameters </h4>
-                <div class="split-parent">
-                    <div id="split-panel1">
-                        <div id="schema"></div>
+                <label for="apiDescription">API name:</label><br>
+                <input class="form-control" type="text" id="apiDescription" name="apiDescription"
+                       placeholder="game/games">
+            </div>
+            <div class="form-group">
+                <label for="apiName">API path:</label>
+                <input class="form-control" type="text" id="apiName" name="apiName"
+                       placeholder="game/draws/{id}?param=668"><br/>
+            </div>
+            <div class="form-group">
+                <label for="method">Choose a Method:</label>
+                <select class="form-control" name="method" id="method">
+                    <option value="post">POST</option>
+                    <option value="get">GET</option>
+                    <option value="patch">PATCH</option>
+                    <option value="delete">DELETE</option>
+                    <option value="put">PUT</option>
+                </select>
+            </div>
+            <div id="paramsData">
+                <div class="form-group">
+                    JSON input data/parameters
+                    <div class="split-parent" id="split-parent-input">
+                        <div id="split-panel1">
+                            <div id="schema"></div>
+                        </div>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label for="descriptionParamsDataInput">Description for input data:</label>
+                    <input id="descriptionParamsDataInput" type="text" class="form-control"
+                           placeholder="The input parameters"/>
+                </div>
             </div>
+
             <div class="form-group">
-                <label for="descriptionParamsDataInput">Description for input data:</label>
-                <input id="descriptionParamsDataInput" type="text" class="form-control" placeholder="The input parameters"/>
+                <label class="bold" for="responseCode">Select response code:</label>
+                <select class="form-control selectpicker codes-select" id="responseCode" multiple
+                        data-live-search="true"
+                        onchange="editCodesList()">
+                </select>
             </div>
         </div>
 
-        <div class="form-group">
-            <label class="bold" for="responseCode">Select response code:</label>
-            <select class="form-control selectpicker" id="responseCode" multiple data-live-search="true" onchange="editCodesList()" style="background: greenyellow">
-                <option value="200" selected>HTTP_OK: 200</option>
-                <option value="201">HTTP_CREATED: 201</option>
-                <option value="204">HTTP_NO_CONTENT: 204</option>
-                <option value="400" selected>HTTP_BAD_REQUEST: 400</option>
-                <option value="403" selected>HTTP_FORBIDDEN: 403</option>
-                <option value="500" selected>HTTP_INTERNAL_SERVER_ERROR: 500</option>
-                <option value="100">HTTP_CONTINUE: 100</option>
-                <option value="101">HTTP_SWITCHING_PROTOCOLS: 101</option>
-                <option value="102">HTTP_PROCESSING: 102</option>
-                <option value="103">HTTP_EARLY_HINTS: 103</option>
-                <option value="202">HTTP_ACCEPTED: 202</option>
-                <option value="203">HTTP_NON_AUTHORITATIVE_INFORMATION: 203</option>
-                <option value="204">HTTP_NO_CONTENT: 204</option>
-                <option value="205">HTTP_RESET_CONTENT: 205</option>
-                <option value="206">HTTP_PARTIAL_CONTENT: 206</option>
-                <option value="207">HTTP_MULTI_STATUS: 207</option>
-                <option value="208">HTTP_ALREADY_REPORTED: 208</option>
-                <option value="226">HTTP_IM_USED: 226</option>
-                <option value="300">HTTP_MULTIPLE_CHOICES: 300</option>
-                <option value="301">HTTP_MOVED_PERMANENTLY: 301</option>
-                <option value="302">HTTP_FOUND: 302</option>
-                <option value="303">HTTP_SEE_OTHER: 303</option>
-                <option value="304">HTTP_NOT_MODIFIED: 304</option>
-                <option value="305">HTTP_USE_PROXY: 305</option>
-                <option value="306">HTTP_RESERVED: 306</option>
-                <option value="307">HTTP_TEMPORARY_REDIRECT: 307</option>
-                <option value="308">HTTP_PERMANENTLY_REDIRECT: 308</option>
-                <option value="401">HTTP_UNAUTHORIZED: 401</option>
-                <option value="402">HTTP_PAYMENT_REQUIRED: 402</option>
-                <option value="404">HTTP_NOT_FOUND: 404</option>
-                <option value="405">HTTP_METHOD_NOT_ALLOWED: 405</option>
-                <option value="406">HTTP_NOT_ACCEPTABLE: 406</option>
-                <option value="407">HTTP_PROXY_AUTHENTICATION_REQUIRED: 407</option>
-                <option value="408">HTTP_REQUEST_TIMEOUT: 408</option>
-                <option value="409">HTTP_CONFLICT: 409</option>
-                <option value="410">HTTP_GONE: 410</option>
-                <option value="411">HTTP_LENGTH_REQUIRED: 411</option>
-                <option value="412">HTTP_PRECONDITION_FAILED: 412</option>
-                <option value="413">HTTP_REQUEST_ENTITY_TOO_LARGE: 413</option>
-                <option value="414">HTTP_REQUEST_URI_TOO_LONG: 414</option>
-                <option value="415">HTTP_UNSUPPORTED_MEDIA_TYPE: 415</option>
-                <option value="416">HTTP_REQUESTED_RANGE_NOT_SATISFIABLE: 416</option>
-                <option value="417">HTTP_EXPECTATION_FAILED: 417</option>
-                <option value="418">HTTP_I_AM_A_TEAPOT: 418</option>
-                <option value="421">HTTP_MISDIRECTED_REQUEST: 421</option>
-                <option value="422">HTTP_UNPROCESSABLE_ENTITY: 422</option>
-                <option value="423">HTTP_LOCKED: 423</option>
-                <option value="424">HTTP_FAILED_DEPENDENCY: 424</option>
-                <option value="425">HTTP_RESERVED_FOR_WEBDAV_ADVANCED_COLLECTIONS_EXPIRED_PROPOSAL: 425</option>
-                <option value="425">HTTP_TOO_EARLY: 425</option>
-                <option value="426">HTTP_UPGRADE_REQUIRED: 426</option>
-                <option value="428">HTTP_PRECONDITION_REQUIRED: 428</option>
-                <option value="429">HTTP_TOO_MANY_REQUESTS: 429</option>
-                <option value="431">HTTP_REQUEST_HEADER_FIELDS_TOO_LARGE: 431</option>
-                <option value="451">HTTP_UNAVAILABLE_FOR_LEGAL_REASONS: 451</option>
-                <option value="501">HTTP_NOT_IMPLEMENTED: 501</option>
-                <option value="502">HTTP_BAD_GATEWAY: 502</option>
-                <option value="503">HTTP_SERVICE_UNAVAILABLE: 503</option>
-                <option value="504">HTTP_GATEWAY_TIMEOUT: 504</option>
-                <option value="505">HTTP_VERSION_NOT_SUPPORTED: 505</option>
-                <option value="506">HTTP_VARIANT_ALSO_NEGOTIATES_EXPERIMENTAL: 506</option>
-                <option value="507">HTTP_INSUFFICIENT_STORAGE: 507</option>
-                <option value="508">HTTP_LOOP_DETECTED: 508</option>
-                <option value="510">HTTP_NOT_EXTENDED: 510</option>
-                <option value="511">HTTP_NETWORK_AUTHENTICATION_REQUIRED: 511</option>
-            </select>
-        </div>
-<!--        <div id="responseData">-->
-<!--            <div class="form-group">-->
-<!--                <h4>JSON response data for 200 code:</h4>-->
-<!--                <div class="split-parent">-->
-<!--                    <div id="split-panel5">-->
-<!--                        <div id="output"></div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--            <div class="form-group">-->
-<!--                <label for="200_input">Description for code 200 :</label><br>-->
-<!--                <input class="form-control description-input" id="200_input" placeholder="HTTP_OK">-->
-<!--                <label class="cb-container">JSON-->
-<!--                    <input type="checkbox" checked="checked" id="200_checkbox" onchange="addJsonForCode(this)">-->
-<!--                    <span class="cb-checkmark"></span>-->
-<!--                </label>-->
-<!--            </div>-->
-<!--        </div>-->
-    </div>
-
-    <div class="side right form-group">
-        <label>Result</label><br>
-        <pre class="line-numbers language-unknown" ondblclick="switchResponseContainer()">
+        <div class="side right form-group">
+            <label>Result</label><br>
+            <pre class="line-numbers language-unknown">
             <code id="finalAnnotationsCode">
             </code>
         </pre>
-        <textarea id="finalAnnotationsTextarea" class="form-control textarea large"></textarea>
+        </div>
+    </div>
+    <br>
+    <div class="convertbutton" onclick="generateAnnotation()"></div>
+</div>
+<div id="context-menu">
+    <div class="item" onmousedown="copy()">
+        <i class="fa fa-clone"></i> Copy
+    </div>
+    <div class="item" id="paste" onclick="paste()">
+        <i class="fa fa-paste"></i> Paste
+    </div>
+    <hr>
+    <div class="item" onclick="reload()">
+        <i class="fa fa-refresh"></i> Reload
+    </div>
+    <div class="item">
+        <i class="fa fa-times"></i> Exit
     </div>
 </div>
-
-<script src="js/jsoneditor_demo.js"></script>
-<script src="js/prism.js"></script>
-
+<script src="js/plugins/jsoneditor.min.js"></script>
+<script src="js/plugins/prism.min.js"></script>
 </body>
 </html>
