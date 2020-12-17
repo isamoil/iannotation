@@ -7,7 +7,7 @@ var errorMessage = '';
 var final_response = null;
 var countOfSplitPanels = 1;
 var aceOutputEditor = [];
-var defaultCodeDescription = {200: 'HTTP_OK', 201: 'HTTP_CREATED', 204: 'No content', 400: 'Bad request', 403: 'Permission denied', 500: 'Internal server error'};
+var defaultCodeDescription = {200: 'HTTP ok', 201: 'HTTP created', 204: 'No content', 400: 'Bad request', 403: 'Permission denied', 500: 'Internal server error'};
 $(document).ready(function () {
     editCodesList();
 });
