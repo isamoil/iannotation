@@ -91,6 +91,7 @@ function generateAnnotation() {
             icon: "warning",
             button: "I got it!",
         });
+        errorMessage = '';
     }
     $(window).scrollTop(0);
 }
@@ -182,6 +183,7 @@ function insertDescriptionInputs() {
 
 function convertJsonToAnnotation(inputJson) {
     let finalString = '';
+    console.log(inputJson, finalString);
     if (Array.isArray(inputJson) && typeof inputJson[0] === 'object' && !Array.isArray(inputJson[0]) &&
         Object.keys(inputJson[0]).length !== 0 && inputJson.length !== 0) {
         finalString += 'type="object",\n';
@@ -190,7 +192,7 @@ function convertJsonToAnnotation(inputJson) {
             finalString = redirectValue(finalString, key, inputJson[0][key]);
         });
     } else {
-        if (Object.keys(inputJson).length) {
+        if (Object.keys(inputJson).length !== 0) {
             tabsCount++;
             Object.keys(inputJson).forEach(function (key) {
                 finalString = redirectValue(finalString, key, inputJson[key]);
@@ -227,7 +229,6 @@ function redirectValue(finalString, key, value) {
             } else if (!value) {
                 error = true;
                 errorMessage += key + ', ';
-                return 0;
             } else {
                 if (Object.keys(value).length !== 0){
                     tabsCount++;
